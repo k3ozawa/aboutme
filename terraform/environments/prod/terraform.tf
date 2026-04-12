@@ -9,10 +9,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "ozawakosuke-aboutme-tfstate"
-    key            = "prod/terraform.tfstate"
-    region         = "ap-northeast-1"
-    dynamodb_table = "ozawakosuke-aboutme-tfstate-lock"
-    encrypt        = true
+    bucket  = "ozawakosuke-aboutme-tfstate"
+    key     = "prod/terraform.tfstate"
+    region  = "ap-northeast-1"
+    encrypt = true
   }
 }
