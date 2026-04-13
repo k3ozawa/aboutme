@@ -1,0 +1,39 @@
+# ============================================================
+# Codex AI PR レビュー - 呼び出し側ワークフロー
+# ============================================================
+# このファイルを各リポジトリの .github/workflows/codex-review.yml に
+# コピーして使ってください。
+#
+# 事前準備:
+#   リポジトリの Settings > Secrets and variables > Actions に
+#   OPENAI_API_KEY を登録してください。
+# ============================================================
+
+name: Codex AI Review
+
+on:
+  pull_request:
+    types:
+      - opened       # PR起票時
+      - synchronize  # 新しいコミットがpushされた時
+      - reopened     # クローズされたPRが再オープンされた時
+
+jobs:
+  codex-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # PRへのコメント投稿に必要
+      contents: read        # コードの読み取りに必要
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Codex AI Review
+        uses: k3ozawa/codex-review@main
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          # model: 'gpt-4o'          # 使用するモデルを変更したい場合はここを編集
+          # language: 'ja'           # レビュー言語 (ja / en)
+          # max-diff-chars: '12000'  # diffの最大文字数
