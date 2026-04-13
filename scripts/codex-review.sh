@@ -99,7 +99,7 @@ while IFS= read -r TASK_ID; do
   echo "codex レビューを開始します..."
   (
     cd "${WORKTREE_PATH}"
-    "${CODEX_BIN}" --approval-mode full-auto \
+    "${CODEX_BIN}" review --base main \
       'このPRのコードをレビューしてください。変更内容の問題点・改善点・セキュリティリスクを日本語で指摘してください。'
   ) && REVIEW_EXIT=0 || REVIEW_EXIT=$?
 
