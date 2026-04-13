@@ -15,7 +15,7 @@ set -euo pipefail
 
 # ---- 設定 ---------------------------------------------------
 PROJECT_PATH="/Users/ozawakosuke/aboutme"
-WORKTREE_BASE="${PROJECT_PATH}/.cline/worktrees"
+WORKTREE_BASE="/Users/ozawakosuke/.cline/worktrees"
 REVIEWED_FLAG_PREFIX="/tmp/codex-reviewed-"
 
 # codex CLI の検索
@@ -36,14 +36,15 @@ echo "codex: ${CODEX_BIN}"
 # ---- Review タスク一覧取得 ----------------------------------
 echo "=== Review カラムのタスクを取得中... ==="
 
-TASKS_JSON=$(kanban task list --column review --project-path "${PROJECT_PATH}" --format json 2>/dev/null) || {
+TASKS_JSON=$(kanban task list --column review --project-path "${PROJECT_PATH}" 2>/dev/null) || {
   echo "ERROR: kanban コマンドの実行に失敗しました。" >&2
   exit 1
 }
 
 TASK_IDS=$(echo "${TASKS_JSON}" | python3 -c "
 import json, sys
-tasks = json.load(sys.stdin)
+data = json.load(sys.stdin)
+tasks = data['tasks'] if isinstance(data, dict) else data
 for t in tasks:
     print(t.get('id', ''))
 " 2>/dev/null) || {
@@ -72,7 +73,7 @@ while IFS= read -r TASK_ID; do
   fi
 
   # worktree パスの確認
-  WORKTREE_PATH="${WORKTREE_BASE}/${TASK_ID}"
+  WORKTREE_PATH="${WORKTREE_BASE}/${TASK_ID}/aboutme"
   if [[ ! -d "${WORKTREE_PATH}" ]]; then
     echo "WARNING: worktree が見つかりません: ${WORKTREE_PATH}" >&2
     echo "         このタスクはスキップします。"
