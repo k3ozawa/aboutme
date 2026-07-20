@@ -1,0 +1,8 @@
+# Copy to backend.hcl, fill in the bucket name from
+# `terraform -chdir=infra/bootstrap output state_bucket_name`, then run:
+#   terraform init -backend-config=backend.hcl
+bucket       = "CHANGE_ME-aboutme-terraform-state"
+key          = "aboutme/prod/terraform.tfstate"
+region       = "ap-northeast-1"
+encrypt      = true
+use_lockfile = true

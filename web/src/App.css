@@ -1,0 +1,89 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  background: #0b0c10;
+  color: #f2f2f2;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.profile-header .avatar {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 600;
+  background: #2f80ed;
+  color: #fff;
+}
+
+.profile-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.profile-header .title {
+  margin: 0.25rem 0 1rem;
+  color: #9aa0a6;
+}
+
+.profile-header .bio {
+  color: #c7c7c7;
+  line-height: 1.6;
+}
+
+.skill-badges {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 0;
+}
+
+.skill-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: #1c1f26;
+  border: 1px solid #2c2f36;
+  font-size: 0.85rem;
+}
+
+.social-links ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+
+.social-links a {
+  color: #f2f2f2;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.social-links a:hover,
+.social-links a:focus-visible {
+  border-bottom-color: currentColor;
+}

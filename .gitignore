@@ -3,3 +3,23 @@ node_modules/
 .DS_Store
 dist/
 .cache/
+*.tsbuildinfo
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+infra/*/backend.hcl
+infra/*/terraform.tfvars
+
+# secrets: only encrypted *.enc.yaml may be committed
+secrets/*.dec.yaml
+secrets/*.dec.json
+secrets/*decrypted*

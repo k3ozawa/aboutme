@@ -1,0 +1,136 @@
+[tools]
+node = "22.23.1"
+terraform = "1.15.8"
+sops = "3.13.2"
+trivy = "0.72.0"
+
+[tasks."dev"]
+description = "Run the frontend dev server"
+dir = "web"
+run = "npm run dev"
+
+[tasks."web:install"]
+description = "Install frontend dependencies"
+dir = "web"
+run = "npm ci"
+
+[tasks."web:lint"]
+description = "Lint the frontend"
+dir = "web"
+run = "npm run lint"
+
+[tasks."web:test"]
+description = "Run frontend unit tests"
+dir = "web"
+run = "npm run test"
+
+[tasks."web:build"]
+description = "Build the frontend for production"
+dir = "web"
+run = "npm run build"
+
+[tasks."web:check"]
+description = "Lint, test, and build the frontend"
+depends = ["web:lint", "web:test", "web:build"]
+
+[tasks."tf:init-check"]
+description = "Init all Terraform roots/modules without touching remote backends (validate/test only)"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+for dir in infra/bootstrap infra/prod infra/modules/vercel-container-site; do
+  terraform -chdir="$dir" init -backend=false -input=false
+done
+'''
+
+[tasks."tf:fmt"]
+description = "Check Terraform formatting"
+run = "terraform fmt -check -recursive infra"
+
+[tasks."tf:validate"]
+description = "Validate all Terraform roots"
+depends = ["tf:init-check"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+terraform -chdir=infra/bootstrap validate
+terraform -chdir=infra/prod validate
+'''
+
+[tasks."tf:test"]
+description = "Run Terraform unit tests (mocked providers, no credentials needed)"
+depends = ["tf:init-check"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+terraform -chdir=infra/modules/vercel-container-site test
+terraform -chdir=infra/bootstrap test
+terraform -chdir=infra/prod test
+'''
+
+[tasks."tf:bootstrap:init"]
+description = "Init infra/bootstrap with local state (first-time setup only)"
+dir = "infra/bootstrap"
+run = "terraform init"
+
+[tasks."tf:bootstrap:plan"]
+description = "Plan infra/bootstrap"
+dir = "infra/bootstrap"
+run = "terraform plan"
+
+[tasks."tf:bootstrap:apply"]
+description = "Apply infra/bootstrap (creates the state bucket, KMS key, OIDC role)"
+dir = "infra/bootstrap"
+run = "terraform apply"
+
+[tasks."tf:init"]
+description = "Init infra/prod against the S3 backend (requires backend.hcl, see infra/prod/backend.hcl.example)"
+dir = "infra/prod"
+run = "terraform init -backend-config=backend.hcl"
+
+[tasks."tf:plan"]
+description = "Plan infra/prod"
+dir = "infra/prod"
+run = "terraform plan"
+
+[tasks."tf:apply"]
+description = "Apply infra/prod"
+dir = "infra/prod"
+run = "terraform apply"
+
+[tasks."docker:build"]
+description = "Build the Dockerfile.vercel container image locally"
+run = "docker build -f Dockerfile.vercel -t aboutme:local ."
+
+[tasks."docker:smoke"]
+description = "Build the image, run it, and verify it serves the site on $PORT"
+depends = ["docker:build"]
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+cid=$(docker run -d -p 8080:8080 -e PORT=8080 aboutme:local)
+trap 'docker rm -f "$cid" >/dev/null' EXIT
+for _ in $(seq 1 10); do
+  if curl -fsS http://localhost:8080/ >/dev/null; then
+    echo "OK: container responded on :8080"
+    exit 0
+  fi
+  sleep 1
+done
+echo "Container did not respond in time" >&2
+docker logs "$cid" >&2
+exit 1
+'''
+
+[tasks."docker:scan"]
+description = "Scan the built image for HIGH/CRITICAL vulnerabilities with Trivy"
+depends = ["docker:build"]
+run = "trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed aboutme:local"
+
+[tasks."secrets:edit"]
+description = "Edit the encrypted secrets file with sops"
+run = "sops secrets/prod.enc.yaml"
+
+[tasks."ci"]
+description = "Run everything CI checks (also usable locally as a full pre-push check)"
+depends = ["web:check", "tf:fmt", "tf:validate", "tf:test", "docker:build", "docker:scan"]
