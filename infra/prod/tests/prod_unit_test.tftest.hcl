@@ -27,11 +27,14 @@ mock_provider "vercel" {
 variables {
   project_name      = "aboutme-test"
   github_repository = "k3ozawa/aboutme"
-  custom_domain     = "example.com"
 }
 
 run "domain_output_reflects_custom_domain" {
   command = plan
+
+  variables {
+    custom_domain = "example.com"
+  }
 
   # project_id isn't asserted here: it's a mocked-computed Vercel attribute
   # that only resolves to a known value within the module's own test scope
@@ -45,12 +48,8 @@ run "domain_output_reflects_custom_domain" {
   }
 }
 
-run "no_domain_output_when_domain_unset" {
+run "no_domain_output_by_default" {
   command = plan
-
-  variables {
-    custom_domain = ""
-  }
 
   assert {
     condition     = output.domain == null

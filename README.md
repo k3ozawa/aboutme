@@ -40,8 +40,8 @@ mise run dev           # 開発サーバー起動 (http://localhost:5173)
 | --- | --- |
 | `dev` | フロントエンド開発サーバーを起動 |
 | `web:install` | フロントエンドの依存関係をインストール |
-| `web:lint` / `web:test` / `web:build` | Lint / unit test (Vitest) / 本番ビルド |
-| `web:check` | 上記3つをまとめて実行 |
+| `web:lint` / `web:test` / `web:audit` / `web:build` | Lint / unit test (Vitest) / 依存関係監査 / 本番ビルド |
+| `web:check` | 上記4つをまとめて実行 |
 | `tf:fmt` | Terraformフォーマットチェック |
 | `tf:validate` | 全Terraformルートを検証（AWS/Vercel認証情報不要） |
 | `tf:test` | `terraform test`（mock providerでオフライン実行、認証情報不要） |
@@ -84,9 +84,9 @@ CI (`.github/workflows/ci.yml`) もこれらのタスクをそのまま呼び出
    mise run tf:apply
    ```
 
-   `infra/prod/variables.tf` の `custom_domain` はプレースホルダー(`example.com`)なので、
+   `custom_domain` の既定値は空なので、ドメイン未決定のままでも適用できる。
    実際のドメインが決まったら `infra/prod/terraform.tfvars`
-   （`terraform.tfvars.example` をコピー）で上書きする。
+   （`terraform.tfvars.example` をコピー）で設定する。
 
 4. **Vercel側の設定**
 

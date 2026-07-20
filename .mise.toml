@@ -29,9 +29,14 @@ description = "Build the frontend for production"
 dir = "web"
 run = "npm run build"
 
+[tasks."web:audit"]
+description = "Fail on high or critical frontend dependency vulnerabilities"
+dir = "web"
+run = "npm audit --audit-level=high"
+
 [tasks."web:check"]
-description = "Lint, test, and build the frontend"
-depends = ["web:lint", "web:test", "web:build"]
+description = "Lint, test, audit dependencies, and build the frontend"
+depends = ["web:lint", "web:test", "web:audit", "web:build"]
 
 [tasks."tf:init-check"]
 description = "Init all Terraform roots/modules without touching remote backends (validate/test only)"

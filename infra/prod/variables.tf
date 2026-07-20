@@ -11,9 +11,9 @@ variable "github_repository" {
 }
 
 variable "custom_domain" {
-  description = "Custom domain to attach to the Vercel project. Replace the placeholder once a domain is chosen"
+  description = "Custom domain to attach to the Vercel project. Leave empty until a domain is chosen"
   type        = string
-  default     = "example.com"
+  default     = ""
 }
 
 variable "vercel_team_id" {
