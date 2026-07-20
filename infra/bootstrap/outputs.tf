@@ -1,10 +1,10 @@
 output "state_bucket_name" {
-  description = "Name of the S3 bucket holding Terraform remote state"
-  value       = aws_s3_bucket.terraform_state.bucket
+  description = "Name of the existing S3 bucket holding Terraform remote state"
+  value       = var.state_bucket_name
 }
 
 output "kms_key_arn" {
-  description = "ARN of the shared KMS key (state encryption + sops)"
+  description = "ARN of the KMS key used by sops"
   value       = aws_kms_key.shared.arn
 }
 

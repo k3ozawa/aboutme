@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "AWS region for the Terraform state bucket and KMS key"
+  description = "AWS region for the existing Terraform state bucket and KMS key"
   type        = string
   default     = "ap-northeast-1"
 }
@@ -16,7 +16,7 @@ variable "github_repository" {
 }
 
 variable "state_bucket_name" {
-  description = "Globally-unique S3 bucket name to hold Terraform remote state"
+  description = "Name of the existing S3 bucket holding Terraform remote state"
   type        = string
-  default     = "aboutme-terraform-state"
+  default     = "k3ozawa-tf-backend"
 }

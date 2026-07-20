@@ -26,58 +26,15 @@ mock_provider "tls" {
 variables {
   aws_region        = "ap-northeast-1"
   github_repository = "k3ozawa/aboutme"
-  state_bucket_name = "aboutme-terraform-state-test"
+  state_bucket_name = "k3ozawa-tf-backend"
 }
 
-run "state_bucket_configured" {
+run "existing_state_bucket_is_exposed" {
   command = plan
 
   assert {
-    condition     = aws_s3_bucket.terraform_state.bucket == var.state_bucket_name
-    error_message = "State bucket name should match the state_bucket_name variable"
-  }
-}
-
-run "state_bucket_versioning_enabled" {
-  command = plan
-
-  assert {
-    condition     = aws_s3_bucket_versioning.terraform_state.versioning_configuration[0].status == "Enabled"
-    error_message = "State bucket versioning should be enabled"
-  }
-}
-
-run "state_bucket_encrypted_with_shared_kms_key" {
-  command = plan
-
-  assert {
-    condition = anytrue([
-      for rule in aws_s3_bucket_server_side_encryption_configuration.terraform_state.rule :
-      rule.apply_server_side_encryption_by_default[0].sse_algorithm == "aws:kms"
-    ])
-    error_message = "State bucket must use SSE-KMS encryption"
-  }
-
-  assert {
-    condition = anytrue([
-      for rule in aws_s3_bucket_server_side_encryption_configuration.terraform_state.rule :
-      rule.bucket_key_enabled == true
-    ])
-    error_message = "S3 bucket key should be enabled to reduce KMS request cost"
-  }
-}
-
-run "state_bucket_fully_blocks_public_access" {
-  command = plan
-
-  assert {
-    condition = alltrue([
-      aws_s3_bucket_public_access_block.terraform_state.block_public_acls,
-      aws_s3_bucket_public_access_block.terraform_state.block_public_policy,
-      aws_s3_bucket_public_access_block.terraform_state.ignore_public_acls,
-      aws_s3_bucket_public_access_block.terraform_state.restrict_public_buckets,
-    ])
-    error_message = "State bucket must block all forms of public access"
+    condition     = output.state_bucket_name == "k3ozawa-tf-backend"
+    error_message = "The existing state bucket name should be exposed unchanged"
   }
 }
 

@@ -74,9 +74,9 @@ terraform -chdir=infra/prod test
 '''
 
 [tasks."tf:bootstrap:init"]
-description = "Init infra/bootstrap with local state (first-time setup only)"
+description = "Init infra/bootstrap against the existing S3 backend"
 dir = "infra/bootstrap"
-run = "terraform init"
+run = "terraform init -backend-config=backend.hcl"
 
 [tasks."tf:bootstrap:plan"]
 description = "Plan infra/bootstrap"
@@ -84,7 +84,7 @@ dir = "infra/bootstrap"
 run = "terraform plan"
 
 [tasks."tf:bootstrap:apply"]
-description = "Apply infra/bootstrap (creates the state bucket, KMS key, OIDC role)"
+description = "Apply infra/bootstrap (creates the KMS key and OIDC role)"
 dir = "infra/bootstrap"
 run = "terraform apply"
 

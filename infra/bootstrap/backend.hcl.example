@@ -1,7 +1,5 @@
-# Copy to backend.hcl after the first `terraform apply` (see README.md), fill
-# in the real bucket name from `terraform output state_bucket_name`, then run:
-#   terraform init -backend-config=backend.hcl -migrate-state
-bucket       = "CHANGE_ME-aboutme-terraform-state"
+# Copy to backend.hcl, then run `mise run tf:bootstrap:init`.
+bucket       = "k3ozawa-tf-backend"
 key          = "aboutme/bootstrap/terraform.tfstate"
 region       = "ap-northeast-1"
 encrypt      = true

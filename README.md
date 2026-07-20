@@ -12,8 +12,8 @@
   ビルド・保存・自動スケールする Vercel Function としてデプロイする
   （Vercel Hobbyプランで稼働、`$PORT` でHTTPを待ち受ける）。
 - **IaC**: Terraform。
-  - [infra/bootstrap](infra/bootstrap): Terraform stateを置くS3バケット・sops用KMSキー・
-    GitHub Actions用OIDC IAMロールを作成する（ローカルstate、初回のみ手動apply）。
+  - [infra/bootstrap](infra/bootstrap): 既存のstateバケット `k3ozawa-tf-backend` を利用し、
+    sops用KMSキー・GitHub Actions用OIDC IAMロールを作成する。
   - [infra/prod](infra/prod): S3 remote backend。Vercelプロジェクト・カスタムドメイン・
     環境変数を管理する（[infra/modules/vercel-container-site](infra/modules/vercel-container-site)
     モジュール経由）。
@@ -58,9 +58,10 @@ CI (`.github/workflows/ci.yml`) もこれらのタスクをそのまま呼び出
 
 ## 初回のインフラ構築手順
 
-1. **状態管理基盤の作成**（`infra/bootstrap`、ローカルstate）
+1. **bootstrapリソースの作成**（既存S3 backendを利用）
 
    ```sh
+   cp infra/bootstrap/backend.hcl.example infra/bootstrap/backend.hcl
    mise run tf:bootstrap:init
    mise run tf:bootstrap:apply
    terraform -chdir=infra/bootstrap output
@@ -78,7 +79,6 @@ CI (`.github/workflows/ci.yml`) もこれらのタスクをそのまま呼び出
 
    ```sh
    cp infra/prod/backend.hcl.example infra/prod/backend.hcl
-   # backend.hcl の bucket を手順1で控えた state_bucket_name に書き換える
    mise run tf:init
    mise run tf:plan
    mise run tf:apply
@@ -104,8 +104,8 @@ CI (`.github/workflows/ci.yml`) もこれらのタスクをそのまま呼び出
   Referrer-Policy / Permissions-Policy / HSTS をNginxで付与、`server_tokens off`。
 - **シークレット管理**: 平文の秘匿情報はコミットしない。sops + AWS KMSで暗号化し、
   CIはGitHub OIDC経由でAWSロールを引き受ける（長期AWSキーをGitHub Secretsに置かない）。
-- **Terraform state**: S3にSSE-KMS暗号化・バージョニング・パブリックアクセスブロック済み
-  バケットで保管し、S3ネイティブロック(`use_lockfile`)で同時実行を防ぐ。
+- **Terraform state**: 既存の `k3ozawa-tf-backend` に保管し、S3ネイティブロック
+  (`use_lockfile`)で同時実行を防ぐ。バケット設定はこのTerraformの管理対象外。
 
 ## 未実施事項（このリポジトリのスキャフォールド時点）
 

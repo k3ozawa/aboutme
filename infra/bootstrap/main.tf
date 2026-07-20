@@ -1,7 +1,6 @@
-# Shared KMS key: encrypts the Terraform state bucket (SSE-KMS) and backs
-# sops for secrets/*.enc.yaml. One key keeps cost down for a personal project.
+# KMS key for sops-encrypted secrets in secrets/*.enc.yaml.
 resource "aws_kms_key" "shared" {
-  description             = "aboutme: Terraform state encryption + sops secrets"
+  description             = "aboutme: sops secrets"
   deletion_window_in_days = 30
   enable_key_rotation     = true
 }
@@ -9,39 +8,6 @@ resource "aws_kms_key" "shared" {
 resource "aws_kms_alias" "shared" {
   name          = "alias/aboutme-terraform"
   target_key_id = aws_kms_key.shared.key_id
-}
-
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = var.state_bucket_name
-}
-
-resource "aws_s3_bucket_versioning" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.shared.arn
-    }
-    bucket_key_enabled = true
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
 }
 
 # --- GitHub Actions OIDC: lets CI assume an AWS role without long-lived keys ---
@@ -94,14 +60,14 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "s3:PutObject",
       "s3:DeleteObject",
     ]
-    resources = ["${aws_s3_bucket.terraform_state.arn}/*"]
+    resources = ["arn:aws:s3:::${var.state_bucket_name}/*"]
   }
 
   statement {
     sid       = "TerraformStateBucketList"
     effect    = "Allow"
     actions   = ["s3:ListBucket"]
-    resources = [aws_s3_bucket.terraform_state.arn]
+    resources = ["arn:aws:s3:::${var.state_bucket_name}"]
   }
 
   statement {
