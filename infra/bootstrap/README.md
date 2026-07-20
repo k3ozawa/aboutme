@@ -1,11 +1,12 @@
 # infra/bootstrap
 
-このモジュールは sops用KMSキーとGitHub Actions用のOIDC IAMロールを作成する。
+このモジュールは sops用KMSキーとGitHub Actions用のIAMロールを作成する。
 Terraform stateには既存のS3バケット `k3ozawa-tf-backend` を使用し、バケット自体は管理しない。
+GitHub ActionsのOIDC ProviderもAWSアカウント内の既存Providerを参照し、新規作成しない。
 
 ## 初回セットアップ手順
 
-1. AWS認証情報を用意する（`aws configure` または環境変数）。KMS/IAM/OIDCプロバイダを
+1. AWS認証情報を用意する（`aws configure` または環境変数）。KMS/IAMを
    作成でき、`k3ozawa-tf-backend` をTerraform backendとして利用できる権限が必要。
 2. backend設定を用意し、初期化・適用する。
 
@@ -30,6 +31,7 @@ Terraform stateには既存のS3バケット `k3ozawa-tf-backend` を使用し�
 ## 含まれるリソース
 
 - `aws_kms_key` / `aws_kms_alias`: sops secretsの暗号化に使うキー
-- `aws_iam_openid_connect_provider` + `aws_iam_role`: GitHub Actionsが長期AWSキーを持たずに
-  既存のステートバケットとKMSキーだけへ限定アクセスできるようにするOIDCロール
+- 既存の `aws_iam_openid_connect_provider` を参照するdata source + `aws_iam_role`:
+  GitHub Actionsが長期AWSキーを持たずに既存のステートバケットとKMSキーだけへ
+  限定アクセスできるようにするOIDCロール
   （trust policyは `repo:<owner>/<repo>:*` に限定）

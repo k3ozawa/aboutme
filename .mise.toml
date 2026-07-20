@@ -84,7 +84,7 @@ dir = "infra/bootstrap"
 run = "terraform plan"
 
 [tasks."tf:bootstrap:apply"]
-description = "Apply infra/bootstrap (creates the KMS key and OIDC role)"
+description = "Apply infra/bootstrap (creates the KMS key and GitHub Actions IAM role)"
 dir = "infra/bootstrap"
 run = "terraform apply"
 

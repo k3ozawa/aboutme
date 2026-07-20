@@ -9,16 +9,12 @@ mock_provider "aws" {
       json = "{}"
     }
   }
-}
 
-mock_provider "tls" {
-  mock_data "tls_certificate" {
+  mock_data "aws_iam_openid_connect_provider" {
     defaults = {
-      certificates = [
-        {
-          sha1_fingerprint = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        },
-      ]
+      arn            = "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+      url            = "https://token.actions.githubusercontent.com"
+      client_id_list = ["sts.amazonaws.com"]
     }
   }
 }
@@ -52,17 +48,12 @@ run "shared_kms_key_has_rotation_enabled" {
   }
 }
 
-run "github_oidc_provider_scoped_to_github_actions" {
+run "existing_github_oidc_provider_is_reused" {
   command = plan
 
   assert {
-    condition     = aws_iam_openid_connect_provider.github_actions.url == "https://token.actions.githubusercontent.com"
-    error_message = "OIDC provider must point at GitHub Actions' issuer"
-  }
-
-  assert {
-    condition     = tolist(aws_iam_openid_connect_provider.github_actions.client_id_list) == tolist(["sts.amazonaws.com"])
-    error_message = "OIDC provider audience must be sts.amazonaws.com"
+    condition     = data.aws_iam_openid_connect_provider.github_actions.url == "https://token.actions.githubusercontent.com"
+    error_message = "The existing GitHub Actions OIDC provider should be looked up by issuer URL"
   }
 }
 

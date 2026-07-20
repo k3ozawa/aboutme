@@ -13,7 +13,7 @@
   （Vercel Hobbyプランで稼働、`$PORT` でHTTPを待ち受ける）。
 - **IaC**: Terraform。
   - [infra/bootstrap](infra/bootstrap): 既存のstateバケット `k3ozawa-tf-backend` を利用し、
-    sops用KMSキー・GitHub Actions用OIDC IAMロールを作成する。
+    既存のGitHub Actions OIDC Providerを参照して、sops用KMSキー・IAMロールを作成する。
   - [infra/prod](infra/prod): S3 remote backend。Vercelプロジェクト・カスタムドメイン・
     環境変数を管理する（[infra/modules/vercel-container-site](infra/modules/vercel-container-site)
     モジュール経由）。
