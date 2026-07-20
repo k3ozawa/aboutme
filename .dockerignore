@@ -1,0 +1,11 @@
+.git
+.github
+.claude
+.cline
+infra
+secrets
+scripts
+*.md
+web/node_modules
+web/dist
+web/coverage

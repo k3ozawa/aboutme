@@ -1,0 +1,5 @@
+# Copy to terraform.tfvars and adjust as needed.
+project_name      = "aboutme"
+github_repository = "k3ozawa/aboutme"
+custom_domain     = "example.com" # 実際のドメインが決まったら差し替える
+# vercel_team_id  = "team_xxxxxxxxxxxxxxxxxxxxxxxx"

@@ -1,0 +1,6 @@
+# Copy to backend.hcl, then run `mise run tf:init`.
+bucket       = "k3ozawa-tf-backend"
+key          = "aboutme/prod/terraform.tfstate"
+region       = "ap-northeast-1"
+encrypt      = true
+use_lockfile = true
