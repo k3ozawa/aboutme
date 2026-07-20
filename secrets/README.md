@@ -6,10 +6,11 @@ Terraform (`infra/prod`)や運用で使う秘匿情報は、平文でコミッ�
 ## 初回セットアップ
 
 1. `infra/bootstrap` を適用済みであること（KMSキーが存在すること）。
-2. `terraform -chdir=infra/bootstrap output kms_key_arn` の値を控え、
+2. `terraform -chdir=infra/bootstrap output -raw kms_key_arn` の値を控え、
    `secrets/.sops.yaml` の `kms:` をその値に書き換える。
 3. AWS認証情報（KMSキーへの `kms:Encrypt` / `kms:Decrypt` 権限があるIAM主体)を用意する。
-4. 以下を実行して暗号化ファイルを作成・編集する。
+4. 以下を実行して暗号化ファイルを作成・編集する。タスクは
+   `secrets/.sops.yaml` を明示的に読み込むため、リポジトリルートから実行できる。
 
    ```sh
    mise run secrets:edit

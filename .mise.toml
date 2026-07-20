@@ -134,7 +134,16 @@ run = "trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed about
 
 [tasks."secrets:edit"]
 description = "Edit the encrypted secrets file with sops"
-run = "sops secrets/prod.enc.yaml"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+if grep -q "REPLACE_WITH_KMS_KEY_ARN" secrets/.sops.yaml; then
+  echo "ERROR: secrets/.sops.yaml の kms を bootstrap の kms_key_arn に置き換えてください。" >&2
+  echo "       terraform -chdir=infra/bootstrap output -raw kms_key_arn" >&2
+  exit 1
+fi
+sops --config secrets/.sops.yaml secrets/prod.enc.yaml
+'''
 
 [tasks."ci"]
 description = "Run everything CI checks (also usable locally as a full pre-push check)"
